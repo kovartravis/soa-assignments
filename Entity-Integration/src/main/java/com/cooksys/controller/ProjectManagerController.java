@@ -15,7 +15,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.cooksys.dto.ProjectDto;
 import com.cooksys.dto.ProjectManagerDto;
+import com.cooksys.exception.ReferencedEntityNotFoundException;
 import com.cooksys.service.ProjectManagerService;
 
 import io.swagger.annotations.ApiOperation;
@@ -45,8 +47,13 @@ public class ProjectManagerController {
 
 	@GetMapping("{id}")
 	@ApiOperation(value = "", nickname = "getProjectManagerById")
-	public ProjectManagerDto get(@PathVariable Long id) {
-		return projectManagerService.get(id);
+	public ProjectManagerDto get(@PathVariable Long id, HttpServletResponse httpResponse) {
+		try {
+			return projectManagerService.get(id);
+		} catch (ReferencedEntityNotFoundException e) {
+			httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return null;
+		}
 	}
 
 	@PostMapping
@@ -60,13 +67,35 @@ public class ProjectManagerController {
 	@PutMapping("{id}")
 	@ApiOperation(value = "", nickname = "putProjectManagerWithId")
 	public void put(@PathVariable Long id, @RequestBody @Validated ProjectManagerDto projectManagerDto, HttpServletResponse httpResponse) {
-		projectManagerService.put(id, projectManagerDto);
+		try {
+			projectManagerService.put(id, projectManagerDto);
+		} catch (ReferencedEntityNotFoundException e) {
+			httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
 	
 	@DeleteMapping("{id}")
 	@ApiOperation(value = "", nickname = "deleteProjectManagerAtId")
 	public void delete(@PathVariable Long id, HttpServletResponse httpResponse) {
-		projectManagerService.delete(id);
+		try {
+			projectManagerService.delete(id);
+		} catch (ReferencedEntityNotFoundException e) {
+			httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+		}
 	}
-
+	
+	@GetMapping("/{id}/projects")
+	public List<ProjectDto> getAllProjects(@PathVariable Long id, HttpServletResponse httpResponse){
+		try {
+			return projectManagerService.getAllProjects(id);
+		} catch (Exception e) {
+			httpResponse.setStatus(HttpServletResponse.SC_NOT_FOUND);
+			return null;
+		}
+	}
+	
+	@GetMapping("overdue")
+	public List<ProjectManagerDto> getAllProjectManagersWithOverdueProjects(){
+		return projectManagerService.getAllProjectManagersWithOverdueProjects();
+	}
 }

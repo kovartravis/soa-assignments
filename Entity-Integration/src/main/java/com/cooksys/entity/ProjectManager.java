@@ -22,6 +22,18 @@ public class ProjectManager implements BaseEntity<Long>{
 	
 	@OneToMany(mappedBy = "manager")
 	private Set<Project> projects;
+	
+	public ProjectManager() {
+		
+	}
+
+	public ProjectManager(Long id, String firstName, String lastName, Set<Project> projects) {
+		super();
+		this.id = id;
+		this.firstName = firstName;
+		this.lastName = lastName;
+		this.projects = projects;
+	}
 
 	public Long getId() {
 		return id;
